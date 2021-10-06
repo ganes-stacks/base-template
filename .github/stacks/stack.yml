@@ -1,17 +1,10 @@
-ame: rails-stack-template
-description: This is a stack for deploying a Rails Apps + MYSQL DB to Azu
+
+name: azure-actions-repo-stack
+description: This is a stack that can be used by someone who wants to start authoring a brand new GitHub Action targetting Azure.
 branding:
   icon: 'Azure.svg'
   color: 'blue'
-#-------------------------------------------------------------
 inputs:
-
- - name: RepoName
-   default: myRailsApp
-   description: Name of the new repo created from this stac
- - name: Repo_Description
-   default: "This is a repo with a Rails App + MYSQL DB"
-   description: Description of the new repo created from this stack
  - name: Reviewer_Count
    default: 2
    description: Number of required reviewers for PR
@@ -21,103 +14,51 @@ inputs:
    - 4
    - 5
    - 6
- - name: DEV_SPN_ID
-   description: SPN ID for Dev deployments
-   is_secret: true
- - name: Azure_SPN_ID
-   description: Azure_SPN_ID for Dev deployments
-   is_secret: true
- - name: SQL_Connection_String
-   description: SQL_Connection_String for Dev deployments
-   is_secret: true
- - name: PROD_SPN_ID
-   description: PROD_SPN_ID for Dev deployments
-   is_secret: true
- - name: STAGING_SPN_ID
-   description: STAGING_SPN_ID for Dev deployments
-   is_secret: true
- - name: Enable_Vulnerability_Alerts
-   description: Enable Vulnerability Alerts
-   type: boolean
- - name: init_script_echo
-   default: "hello rails app"
-   description: this would be consumed by init script
-   required: false
 #-------------------------------------------------------------
 
 configs:
 # Meta data for creating the new repository
 - repo-metadata:
     parameters:
-      description: ${{ inputs.Repo_Description }}
-      secrets:
-      - name: DEV_SPN_ID
-        value: ${{ inputs.DEV_SPN_ID }}
+      description: This is a Azure GitHub Action
       topics:
-      - rails
-      - sql
+      - azure
+      - action
 
  # Branch protection rules
 - branches:
-   - name: release_v? #branch name or pattern you want to protect
+   - name: releases/*
      parameters:
-       enforce-admins: true
        dismiss-stale-reviews: true
        require-code-owner-reviews: true
-       required-approving-review-count: ${{ inputs.Reviewer_Count }}
-       allow-force-pushes: false
-       allow-deletions: false
+       required-approving-review-count: {{ inputs.Reviewer_Count }}
    
-   - name: dev_v? #branch name or pattern you want to protect
+   - name: main
      parameters:
-       enforce-admins: true
        dismiss-stale-reviews: true
        require-code-owner-reviews: true
-       required-approving-review-count: ${{ inputs.Reviewer_Count }}
-       allow-force-pushes: false
-       allow-deletions: false
-
- # Environments & variables(secrets) to be created
-- environments: 
-    - name: staging
-      parameters: 
-        protected-branches: false
-        secrets:
-          - name: SQL_Connection_String
-            value: ${{ inputs.SQL_Connection_String }}
-          - name: PROD_SPN_ID
-            value: ${{ inputs.PROD_SPN_ID }}
-
-    - name: production
-      parameters: 
-        protected-branches: true
-        secrets:
-          - name: Azure_SPN_ID
-            value: ${{ inputs.Azure_SPN_ID }}
-          - name: STAGING_SPN_ID
-            value: ${{ inputs.STAGING_SPN_ID }}
-
-# Security and configuration settings to be enabled/disabled
+       required-approving-review-count: {{ inputs.Reviewer_Count }}
+            
 - security:
     parameters: 
-      vulnerability-alerts: ${{inputs.Enable_Vulnerability_Alerts}}
+      vulnerability-alerts: true
       automated-security-fixes: true
 
 #-------------------------------------------------------------
 # Initialization workflow to run
-init:
-#This workflow file will NOT be part of the stack (new repo created). 
-# workflow could use the stack inputs using the notation : ${{ github.event.inputs.name }}
- - uses: ".github/workflows/setup.yml"
+# init:
+# #This workflow file will NOT be part of the stack (new repo created). 
+# # workflow could use the stack inputs using the notation : ${{ github.event.inputs.name }}
+#  - uses: ".github/workflows/setup.yml"
 
-# This section will be enhanced to define other Stack operations: up, build, deploy etc.
+# # This section will be enhanced to define other Stack operations: up, build, deploy etc.
 
-github-apps:
-- slug: Azure
-  parameters:
-     environment: production
-     secrets:
-       - name: Azure_SPN_ID
-       - name: Azure_Tenant_ID
+# github-apps:
+# - slug: Azure
+#   parameters:
+#      environment: production
+#      secrets:
+#        - name: Azure_SPN_ID
+#        - name: Azure_Tenant_ID
 
-- slug: codetree
+# - slug: codetree
