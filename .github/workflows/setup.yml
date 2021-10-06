@@ -1,0 +1,10 @@
+
+name: test-workflow
+on:
+  workflow_dispatch:
+jobs:
+  apply-azure-policy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: my-step
+      run: echo "Hello World!"
