@@ -1,6 +1,6 @@
 
-name: azure-actions-repo-stack
-description: This is a stack that can be used by someone who wants to start authoring a brand new GitHub Action targetting Azure.
+name: rails-stack-template
+description: This is a stack for deploying a Rails Apps + MYSQL DB to Azu
 branding:
   icon: 'Azure.svg'
   color: 'blue'
@@ -14,6 +14,15 @@ inputs:
    - 4
    - 5
    - 6
+ - name: DEV_SPN_ID
+   description: SPN ID for Dev deployments
+   is_secret: true
+ - name: SQL_Connection_String
+   description: SQL_Connection_String for Dev deployments
+   is_secret: true
+ - name: PROD_SPN_ID
+   description: PROD_SPN_ID for Dev deployments
+   is_secret: true
 #-------------------------------------------------------------
 
 configs:
@@ -21,6 +30,9 @@ configs:
 - repo-metadata:
     parameters:
       description: This is a Azure GitHub Action
+      secrets:
+      - name: DEV_SPN_ID
+        value: ${{ inputs.DEV_SPN_ID }}
       topics:
       - azure
       - action
@@ -38,27 +50,17 @@ configs:
        dismiss-stale-reviews: true
        require-code-owner-reviews: true
        required-approving-review-count: {{ inputs.Reviewer_Count }}
+- environments: 
+  - name: staging
+    parameters: 
+      protected-branches: false
+      secrets:
+        - name: SQL_Connection_String
+          value: ${{ inputs.SQL_Connection_String }}
+        - name: PROD_SPN_ID
+          value: ${{ inputs.PROD_SPN_ID }}
             
 - security:
     parameters: 
       vulnerability-alerts: true
       automated-security-fixes: true
-
-#-------------------------------------------------------------
-# Initialization workflow to run
-# init:
-# #This workflow file will NOT be part of the stack (new repo created). 
-# # workflow could use the stack inputs using the notation : ${{ github.event.inputs.name }}
-#  - uses: ".github/workflows/setup.yml"
-
-# # This section will be enhanced to define other Stack operations: up, build, deploy etc.
-
-# github-apps:
-# - slug: Azure
-#   parameters:
-#      environment: production
-#      secrets:
-#        - name: Azure_SPN_ID
-#        - name: Azure_Tenant_ID
-
-# - slug: codetree
